@@ -25,6 +25,12 @@ Cada tema vive en su propia carpeta, con su RTL y su testbench juntos:
   este bloque) y `fence`/`ecall`/`ebreak`. Tres testbenches, uno por bloque
   pedagogico, cada uno con su propio programa `.hex`
   (`core_min2_alu_tb.sv`, `core_min2_branch_tb.sv`, `core_min2_jump_tb.sv`).
+- **`core_full/`**: núcleo RV32I base **completo** -- las 34 instrucciones
+  de `core_min2/` mas `lui`/`auipc` (`CoreControlUnit_full.sv`), memoria de
+  datos byte-direccionable (`DataMemory_full.sv`, `LoadAndStoreUnit.sv`:
+  `lb/lh/lw/lbu/lhu/sb/sh/sw`) y `fence`/`ecall`/`ebreak` decodificadas
+  como no-op. Seis testbenches -- `alu`, `branch`, `jump`, `upper`, `mem`
+  y `full`, que suma un arreglo de enteros en memoria.
 
 ## Instalación
 
@@ -155,3 +161,30 @@ make clean
 `make core-min` compila y corre `core_min_tb`, que ejecuta
 `program_add_sub_addi.hex` sobre `ProcessorCoreMin` y verifica el banco de
 registros al final (`PASS`/`FAIL` por registro).
+
+### Núcleo RV32I base completo (`core_full/`)
+
+```bash
+python3 core_full/sc_run.py                 # completo (default)
+python3 core_full/sc_run.py --tb alu        # ALU completa
+python3 core_full/sc_run.py --tb branch     # los 6 branches
+python3 core_full/sc_run.py --tb jump       # jal/jalr
+python3 core_full/sc_run.py --tb upper      # lui/auipc
+python3 core_full/sc_run.py --tb mem        # loads/stores
+python3 core_full/sc_run.py --wave          # cualquiera + Surfer
+python3 core_full/sc_run.py --view          # onda incluida, sin simular
+```
+
+Alternativa con Verilator directo:
+
+```bash
+make core-full-all      # los 6 bloques, en secuencia
+make core-full-alu
+make core-full-branch
+make core-full-jump
+make core-full-upper
+make core-full-mem
+make core-full           # suma de un arreglo de enteros en memoria
+make wave-core-full-alu  # (y el resto de wave-core-full-<bloque>)
+make clean
+```
